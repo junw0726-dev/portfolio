@@ -1,0 +1,55 @@
+온라인 관리자 설정 — Cloudflare Workers
+
+사이트 https://portfolio.junw0726.workers.dev/
+관리자 https://portfolio.junw0726.workers.dev/admin
+
+최초 한 번의 Cloudflare 계정 설정이 필요합니다.
+
+1. Cloudflare R2에서 portfolio-content 이름의 버킷을 만드세요.
+   공개 접근은 켤 필요가 없습니다. Worker를 통해 사진을 제공합니다.
+   wrangler.jsonc의 PORTFOLIO_STORE 연결이 이 버킷을 사용합니다.
+
+2. Workers & Pages → portfolio → Settings → Variables and Secrets에서 다음을 추가하세요.
+   Type: Secret
+   Name: ADMIN_PASSWORD
+   Value: 관리자가 정하는 비밀번호 (12자 이상)
+
+   Type: Secret
+   Name: SESSION_SECRET
+   Value: 32자 이상의 임의 문자열 (비밀번호와 다른 값)
+
+   이 값들은 채팅이나 GitHub에 넣지 마세요.
+   비밀번호나 SESSION_SECRET을 바꾸면 기존 로그인 세션은 무효가 됩니다.
+
+3. GitHub 최신 커밋으로 재배포하세요.
+   Deploy command: npx wrangler deploy
+   기존의 --name portfolio --assets . --compatibility-date 2026-10-23 옵션이 있어도 동작합니다.
+   R2 관련 권한 오류가 나면 Cloudflare 빌드 토큰의 R2 권한과 버킷 생성을 확인하세요.
+
+4. /admin에 접속해 설정한 비밀번호로 로그인하세요.
+   최초 저장 시 기존에 파일 안에 들어 있던 이미지도 R2로 자동 이전됩니다.
+   사진 업로드 중에는 창을 닫지 마세요.
+   '게시했습니다'가 표시되면 재배포 없이 공개 사이트에 바로 반영됩니다.
+   이미 열어둔 같은 브라우저의 포트폴리오 탭도 갱신됩니다.
+   다른 방문자는 새로고침하거나 페이지를 다시 열면 새 내용을 봅니다.
+
+저장 구조
+- content/current.json: 현재 공개 콘텐츠
+- content/previous.json: 직전 저장본 1개
+- media/: 업로드 이미지 원본
+- 버킷은 비공개 상태로 유지합니다. 이미지 경로만 Worker가 공개 제공합니다.
+- 삭제된 작업물 사진은 복구를 위해 저장소에서 자동 삭제하지 않습니다.
+- 썸네일 사진 목록과 상세 이미지·텍스트 블록은 각각 저장됩니다.
+- 이후 GitHub 코드를 배포해도 R2의 게시 내용은 유지됩니다.
+- 초기 site-content.js는 온라인 저장본이 없을 때만 사용합니다.
+
+보안과 한도
+- 12시간 로그인, HttpOnly / Secure / SameSite=Strict 쿠키
+- 변경 요청의 출처와 CSRF 토큰 검사
+- 로그인 시도 제한, 두 편집창의 중복 저장 충돌 방지
+- 이미지 1개 최대 25MiB, PNG / JPG / GIF / WebP
+- JSON 콘텐츠 최대 5MiB (사진은 별도로 R2에 저장)
+
+로컬 관리 기능은 기존 start-admin.cmd로 계속 사용할 수 있습니다.
+온라인 변경을 로컬 파일로 자동 내려받지는 않습니다.
+JSON 백업은 이미지 참조를 포함합니다. R2 원본 사진도 함께 보관하세요.

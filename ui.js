@@ -107,3 +107,6 @@
   document.fonts?.ready.then(schedule);
   schedule();
 })();
+
+// Refresh other open preview tabs after a successful online publication.
+try { const publishChannel = new BroadcastChannel('portfolio-published'); publishChannel.onmessage = event => {if(event.data==='published')location.reload();}; } catch {}

@@ -24,3 +24,14 @@ site-content.backup.txt
 README.md
 README.txt
 *-수정안내.txt
+
+# Worker source, setup instructions and development files
+worker.mjs
+login.test.mjs
+worker.test.mjs
+CLOUDFLARE-SETUP.txt
+package.json
+package-lock.json
+.dev.vars
+.dev.vars.*
+*.test.mjs
