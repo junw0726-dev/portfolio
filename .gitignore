@@ -1,0 +1,9 @@
+# Local archives and editor backups
+*.zip
+*.z[0-9][0-9]
+site-content.backup.txt
+*.tmp
+node_modules/
+.env
+.env.*
+!.env.example
