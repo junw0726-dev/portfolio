@@ -74,7 +74,7 @@
 
   function schedule(state) {
     clearTimeout(state.timer);
-    if (state.active && state.project.images.length && !document.hidden && !reducedMotion.matches && !document.body.classList.contains('detail-open')) {
+    if (state.active && state.project.images.length && !document.hidden && !reducedMotion.matches) {
       state.timer = setTimeout(() => advance(state), delay());
     }
   }
@@ -137,7 +137,8 @@
     trigger?.setAttribute('aria-expanded', 'false');
     trigger = states[index].card;
     trigger.setAttribute('aria-expanded', 'true');
-    states.forEach(state => { clearTimeout(state.timer); state.generation++; state.cleanup?.(); });
+    // Keep thumbnail timers running while the project panel is open.
+    states.forEach(state => state.cleanup?.());
     const project = portfolio.projects[index];
     content.replaceChildren();
     project.blocks.forEach(block => {
