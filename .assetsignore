@@ -1,0 +1,26 @@
+# Repository and local tooling
+.git
+.git/**
+.github/**
+.gitignore
+.assetsignore
+node_modules
+node_modules/**
+.wrangler
+.wrangler/**
+.env
+.env.*
+wrangler.json
+wrangler.jsonc
+wrangler.toml
+# Local-only management server and backups
+server.cjs
+*.cmd
+*.tmp
+site-content.backup.txt
+*.zip
+*.z[0-9][0-9]
+# Documentation
+README.md
+README.txt
+*-수정안내.txt
