@@ -13,7 +13,13 @@ async function hmac(env, text) {
   return b64(await crypto.subtle.sign('HMAC',key,encoder.encode(text)));
 }
 const configured = env => typeof env.ADMIN_PASSWORD==='string' && env.ADMIN_PASSWORD.length>=12 && typeof env.SESSION_SECRET==='string' && env.SESSION_SECRET.length>=32 && env.PORTFOLIO_STORE;
-function configuration(env) {if(!configured(env))fail(503,'Cloudflare에 portfolio-content R2 버킷과 PORTFOLIO_STORE 연결, ADMIN_PASSWORD(12자 이상), SESSION_SECRET(32자 이상) Secret을 설정하세요.');}
+function configuration(env) {
+  const missing = [];
+  if (!env.PORTFOLIO_STORE) missing.push('R2 연결 누락: Worker의 Bindings에서 변수명 PORTFOLIO_STORE를 portfolio-content 버킷에 연결하세요.');
+  if (typeof env.ADMIN_PASSWORD !== 'string' || env.ADMIN_PASSWORD.length < 12) missing.push('ADMIN_PASSWORD 누락 또는 12자 미만: Runtime variables and secrets의 Production에 Secret으로 설정하세요.');
+  if (typeof env.SESSION_SECRET !== 'string' || env.SESSION_SECRET.length < 32) missing.push('SESSION_SECRET 누락 또는 32자 미만: Runtime variables and secrets의 Production에 Secret으로 설정하세요.');
+  if (missing.length) fail(503, missing.join('\n'));
+}
 async function session(request,env) {
   if(!configured(env))return null;
   const cookie=(request.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1);
